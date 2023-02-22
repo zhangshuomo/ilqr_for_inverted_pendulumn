@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<robot name="cartpole">
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/cartpole</robotNamespace>
+    </plugin>
+  </gazebo>
+
+  <link name="world"/>
+
+  <link name="slideBar">
+    <visual>
+      <geometry>
+        <box size="300 0.05 0.05"/>
+      </geometry>
+      <origin xyz="0 0 0"/>
+      <material name="grey">
+        <color rgba="0.75 0.75 0.75 0.8"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="90.0"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+  </link>
+
+  <joint name="world_to_slideBar" type="fixed">
+    <parent link="world"/>
+    <child link="slideBar"/>
+    <origin xyz="0.0 0.0 2.0"/>
+  </joint>
+
+  <link name="cart">
+    <visual>
+      <geometry>
+        <box size="0.5 0.5 0.2"/>
+      </geometry>
+      <origin xyz="0 0 0"/>
+      <material name="grey">
+        <color rgba="0.75 0.75 0.75 0.8"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+          <box size="0.0 0.0 0.0"/>
+      </geometry>
+      <origin xyz="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="36.588"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+  </link>
+
+  <joint name="slider_to_cart" type="prismatic">
+    <axis xyz="1 0 0"/>
+    <origin xyz="0.0 0.0 0.0"/>
+    <parent link="slideBar"/>
+    <child link="cart"/>
+    <limit effort="100000.0" lower="-150" upper="150" velocity="100"/>
+    <dynamics damping="0.0" friction="0.0"/>
+  </joint>
+
+  <link name="pole">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 1.0"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 -0.5"/>
+      <material name="grey">
+        <color rgba="0.75 0.75 0.75 0.8"/>
+      </material>
+    </visual>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.5"/>
+      <mass value="19.621"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="3.25461" iyz="0.0" izz="1.0"/>
+    </inertial>
+     <collision>
+      <geometry>
+        <box size="0.05 0.05 1.0"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 -0.5"/>
+    </collision>
+  </link>
+
+  <joint name="cart_to_pole" type="revolute">
+    <axis xyz="0 1 0"/>
+    <origin xyz="0.0 0.0 0" rpy="0.0 0.0 0.0"/>
+    <parent link="cart"/>
+    <child link="pole"/>
+    <limit lower="-100.0" upper="100.0" velocity="500.0" effort="50.0" />
+    <dynamics damping="0.0" friction="0.0"/>
+  </joint>
+
+
+  <transmission name="trans1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="slider_to_cart">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="trans2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="cart_to_pole">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor2">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+</robot>
